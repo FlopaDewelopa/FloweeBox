@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}FloweeBox{% endblock %}</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='icon.png') }}">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f7f7f8;color:#18181b;line-height:1.6;min-height:100vh;display:flex;flex-direction:column}
+a{color:#2563eb;text-decoration:none}
+a:hover{text-decoration:underline}
+nav{background:#18181b;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:56px}
+nav a{color:#fafafa;font-size:.875rem;padding:.375rem .75rem;border-radius:8px;transition:background-color 120ms}
+nav a:hover{background:#27272a;text-decoration:none}
+.nav-brand{font-size:1.125rem;font-weight:700;letter-spacing:-.025em}
+.nav-links{display:flex;gap:.25rem;align-items:center}
+.nav-user{color:#a1a1aa;font-size:.8125rem;padding:0 .5rem}
+main{max-width:1100px;width:100%;margin:2rem auto;padding:0 1.25rem;flex:1}
+.card{background:#fff;border:1px solid #e4e4e7;border-radius:8px;padding:1.25rem;transition:border-color 120ms}
+.card:hover{border-color:#d4d4d8}
+.card h3{font-size:.9375rem;font-weight:600;margin-bottom:.25rem}
+.card-meta{color:#71717a;font-size:.8125rem;margin-top:.25rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:.75rem;margin-bottom:.75rem}
+.btn{display:inline-block;padding:.4375rem 1rem;border:1px solid transparent;border-radius:8px;font-size:.8125rem;cursor:pointer;font-weight:500;text-align:center;font-family:inherit;transition:background-color 120ms,border-color 120ms}
+.btn-primary{background:#2563eb;color:#fff;border-color:#2563eb}
+.btn-primary:hover{background:#1d4ed8;border-color:#1d4ed8;text-decoration:none}
+.btn-danger{background:#dc2626;color:#fff;border-color:#dc2626}
+.btn-danger:hover{background:#b91c1c;border-color:#b91c1c;text-decoration:none}
+.btn-outline{background:#fff;color:#3f3f46;border-color:#d4d4d8}
+.btn-outline:hover{background:#f4f4f5;border-color:#a1a1aa;text-decoration:none}
+.btn-sm{padding:.25rem .625rem;font-size:.75rem}
+input[type=text],input[type=password],input[type=file],select{width:100%;padding:.5rem .75rem;border:1px solid #d4d4d8;border-radius:8px;font-size:.875rem;margin-top:.25rem;font-family:inherit;background:#fff;transition:border-color 120ms}
+input:focus,select:focus{outline:none;border-color:#2563eb}
+label{display:block;font-weight:500;font-size:.8125rem;color:#3f3f46;margin-bottom:.125rem}
+.form-group{margin-bottom:1rem}
+.checkbox-label{display:flex;align-items:center;gap:.5rem;font-weight:400;cursor:pointer}
+.checkbox-label input[type=checkbox]{width:auto;margin:0}
+.flash{padding:.625rem 1rem;border-radius:8px;margin-bottom:1rem;font-size:.8125rem;border:1px solid}
+.flash-error{background:#fef2f2;color:#991b1b;border-color:#fecaca}
+.flash-info{background:#eff6ff;color:#1e40af;border-color:#bfdbfe}
+.badge{display:inline-block;padding:.125rem .5rem;border-radius:8px;font-size:.6875rem;font-weight:600}
+.badge-public{background:#dcfce7;color:#166534}
+.badge-private{background:#fef3c7;color:#92400e}
+.badge-audio{background:#ede9fe;color:#5b21b6}
+.badge-video{background:#e0f2fe;color:#075985}
+.badge-admin{background:#dbeafe;color:#1e40af}
+.badge-user{background:#f4f4f5;color:#52525b}
+.badge-banned{background:#fef2f2;color:#991b1b}
+.badge-owner{background:#f3e8ff;color:#6b21a8}
+.pagination{display:flex;gap:.375rem;justify-content:center;margin-top:1.5rem}
+.pagination a,.pagination span{padding:.375rem .75rem;border-radius:8px;font-size:.8125rem}
+.pagination a{border:1px solid #d4d4d8;color:#2563eb;transition:background-color 120ms,border-color 120ms}
+.pagination a:hover{background:#f4f4f5;border-color:#a1a1aa;text-decoration:none}
+.pagination .active{background:#2563eb;color:#fff;border:1px solid #2563eb}
+.search-bar{display:flex;gap:.5rem;margin-bottom:1.25rem}
+.search-bar input{flex:1}
+.search-bar select{width:auto;flex:0 0 auto}
+.player-wrap{max-width:800px;margin:0 auto}
+.player-wrap video,.player-wrap audio{width:100%;border-radius:8px}
+.player-wrap video{background:#000}
+.player-info{margin-top:1.25rem}
+.player-info h1{font-size:1.375rem;font-weight:700;margin-bottom:.375rem}
+.player-info p{color:#71717a;font-size:.875rem}
+.empty{text-align:center;padding:3rem;color:#a1a1aa}
+.actions{display:flex;gap:.375rem;margin-top:.625rem;flex-wrap:wrap}
+.actions form{margin:0}
+.auth-box{max-width:400px;margin:3rem auto}
+footer{text-align:center;padding:1.5rem;color:#a1a1aa;font-size:.75rem}
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:.5rem}
+.page-header h1{font-size:1.25rem;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:.8125rem}
+th{padding:.625rem .5rem;text-align:left;font-weight:600;color:#71717a;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em}
+td{padding:.625rem .5rem}
+thead tr{border-bottom:2px solid #e4e4e7}
+tbody tr{border-bottom:1px solid #f4f4f5;transition:background-color 120ms}
+tbody tr:hover{background:#fafafa}
+.table-wrap{overflow-x:auto;border-radius:8px}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.5rem}
+.stat-card{background:#fff;border:1px solid #e4e4e7;border-radius:8px;text-align:center;padding:1.5rem 1rem}
+.stat-value{font-size:1.75rem;font-weight:700;color:#18181b}
+.stat-label{font-size:.8125rem;color:#71717a;margin-top:.125rem}
+.share-link{font-size:.75rem;padding:.25rem .5rem;margin-top:.375rem;cursor:pointer;background:#fafafa;border-color:#e4e4e7}
+.legal h2{font-size:.9375rem;font-weight:600;margin:1.25rem 0 .375rem;color:#18181b}
+.legal p,.legal li{font-size:.875rem;color:#3f3f46;line-height:1.7}
+.legal ul{margin:.5rem 0 .5rem 1.25rem}
+@media(max-width:640px){
+nav{padding:.625rem 1rem;height:auto;flex-wrap:wrap;gap:.5rem}
+.grid{grid-template-columns:1fr}
+.stat-grid{grid-template-columns:1fr}
+.search-bar{flex-direction:column}
+.page-header{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<nav>
+<a href="{{ url_for('media.index') }}" class="nav-brand" style="display:flex;align-items:center;gap:0.5rem">
+    <img src="{{ url_for('static', filename='icon.png') }}" alt="Logo" style="height:28px;width:28px;object-fit:contain">
+    FloweeBox
+</a>
+<div class="nav-links">
+{% if current_user.is_authenticated %}
+<span class="nav-user">{{ current_user.username }}</span>
+{% if current_user.is_admin %}
+<a href="{{ url_for('admin.panel') }}">Admin</a>
+{% endif %}
+<a href="{{ url_for('media.dashboard') }}">Panel</a>
+<a href="{{ url_for('media.upload') }}">Wrzuc</a>
+<a href="{{ url_for('auth.logout') }}">Wyloguj</a>
+{% else %}
+<a href="{{ url_for('auth.login') }}">Zaloguj</a>
+<a href="{{ url_for('auth.register') }}">Rejestracja</a>
+{% endif %}
+</div>
+</nav>
+<main>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% for category, message in messages %}
+<div class="flash flash-{{ category }}">{{ message }}</div>
+{% endfor %}
+{% endwith %}
+{% block content %}{% endblock %}
+</main>
+<footer>FloweeBox · <a href="{{ url_for('media.regulamin') }}" style="color:#a1a1aa">Regulamin</a></footer>
+</body>
+</html>

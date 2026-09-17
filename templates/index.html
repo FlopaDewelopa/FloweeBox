@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}FloweeBox{% endblock %}
+{% block content %}
+<div class="page-header">
+<h1>Publiczne media</h1>
+</div>
+<form class="search-bar" method="get" action="{{ url_for('media.index') }}">
+<input type="text" name="q" value="{{ search }}" placeholder="Szukaj po tytule...">
+<select name="sort">
+<option value="date"{% if sort == 'date' %} selected{% endif %}>Najnowsze</option>
+<option value="name"{% if sort == 'name' %} selected{% endif %}>Nazwa A-Z</option>
+</select>
+<button type="submit" class="btn btn-primary">Szukaj</button>
+</form>
+{% if media_list %}
+<div class="grid">
+{% for item in media_list %}
+<a href="{{ url_for('media.player', media_id=item.id) }}" class="card" style="text-decoration:none;color:inherit">
+<h3>{{ item.title }}</h3>
+<p class="card-meta">
+<span class="badge badge-{{ item.media_type }}">{{ item.media_type }}</span>
+{{ format_size(item.file_size) }}
+/ {{ item.owner.username }}
+/ {{ item.created_at.strftime('%Y-%m-%d') }}
+</p>
+</a>
+{% endfor %}
+</div>
+{% if pagination.pages > 1 %}
+<div class="pagination">
+{% if pagination.has_prev %}
+<a href="{{ url_for('media.index', page=pagination.prev_num, q=search, sort=sort) }}">Poprzednia</a>
+{% endif %}
+{% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+{% if p %}
+<a href="{{ url_for('media.index', page=p, q=search, sort=sort) }}"{% if p == pagination.page %} class="active"{% endif %}>{{ p }}</a>
+{% else %}
+<span>...</span>
+{% endif %}
+{% endfor %}
+{% if pagination.has_next %}
+<a href="{{ url_for('media.index', page=pagination.next_num, q=search, sort=sort) }}">Nastepna</a>
+{% endif %}
+</div>
+{% endif %}
+{% else %}
+<div class="empty">
+<p>Brak mediow do wyswietlenia.</p>
+</div>
+{% endif %}
+{% endblock %}

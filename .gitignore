@@ -1,0 +1,9 @@
+venv/
+.env
+__pycache__/
+*.pyc
+uploads/
+mediabox.db
+users.json
+.vscode/
+.idea/

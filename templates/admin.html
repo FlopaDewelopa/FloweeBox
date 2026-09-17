@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}Panel administratora - FloweeBox{% endblock %}
+{% block content %}
+<div class="page-header">
+<h1>Panel administratora</h1>
+</div>
+<div class="stat-grid">
+<div class="stat-card">
+<div class="stat-value">{{ users|length }}</div>
+<div class="stat-label">Uzytkownicy</div>
+</div>
+<div class="stat-card">
+<div class="stat-value">{{ media_list|length }}</div>
+<div class="stat-label">Pliki</div>
+</div>
+<div class="stat-card">
+<div class="stat-value">{{ format_size(total_size) }}</div>
+<div class="stat-label">Laczny rozmiar</div>
+</div>
+</div>
+<div class="card" style="margin-bottom:1rem">
+<h2 style="font-size:1rem;font-weight:700;margin-bottom:.75rem">Uzytkownicy</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Nazwa</th>
+<th>Rola</th>
+<th>Status</th>
+<th>Ostatnie IP</th>
+<th>Rejestracja</th>
+<th>Pliki</th>
+<th>Akcje</th>
+</tr>
+</thead>
+<tbody>
+{% for user in users %}
+{% set user_data = store.get(user.username, {}) %}
+{% set role = user_data.get('role', 'USER')|upper %}
+<tr>
+<td>{{ user.id }}</td>
+<td style="font-weight:500">{{ user.username }}</td>
+<td>
+<span class="badge badge-{{ role|lower }}">{{ role }}</span>
+</td>
+<td>
+{% if user.is_banned %}
+<span class="badge badge-banned">zbanowany</span>
+{% else %}
+<span class="badge badge-public">aktywny</span>
+{% endif %}
+</td>
+<td style="font-family:monospace;font-size:.75rem">{{ user_data.get('last_ip', '-') }}</td>
+<td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+<td>{{ user.media.count() }}</td>
+<td>
+{% if user.id != current_user.id %}
+<div class="actions" style="margin:0">
+{% if not user.is_admin %}
+<form method="post" action="{{ url_for('admin.ban_user', user_id=user.id) }}" style="margin-bottom:0.25rem">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<button type="submit" class="btn {{ 'btn-outline' if user.is_banned else 'btn-danger' }} btn-sm" style="width:100%">
+{{ 'Odbanuj' if user.is_banned else 'Zbanuj' }}
+</button>
+</form>
+{% endif %}
+{% if current_user.role == 'OWNER' %}
+<form method="post" action="{{ url_for('admin.impersonate', user_id=user.id) }}" style="margin-bottom:0.25rem">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<button type="submit" class="btn btn-outline btn-sm" style="width:100%">Zaloguj jako</button>
+</form>
+<form method="post" action="{{ url_for('admin.reset_password', user_id=user.id) }}" style="margin-bottom:0.25rem;display:flex;gap:0.25rem;">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<input type="text" name="new_password" placeholder="Nowe haslo..." style="width:110px; margin:0; padding:0.25rem 0.5rem; border-radius:6px; font-size:0.75rem;">
+<button type="submit" class="btn btn-outline btn-sm">Zmien</button>
+</form>
+{% endif %}
+<form method="post" action="{{ url_for('admin.delete_user', user_id=user.id) }}" onsubmit="return confirm('Na pewno usunac uzytkownika i wszystkie jego pliki?')">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<button type="submit" class="btn btn-danger btn-sm" style="width:100%">Usun</button>
+</form>
+</div>
+{% else %}
+<span style="color:#a1a1aa;font-size:.8125rem">Ty</span>
+{% endif %}
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+</div>
+<div class="card" style="margin-bottom:1rem">
+<h2 style="font-size:1rem;font-weight:700;margin-bottom:.75rem">Wszystkie pliki</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Tytul</th>
+<th>Wlasciciel</th>
+<th>Typ</th>
+<th>Rozmiar</th>
+<th>Widocznosc</th>
+<th>Data</th>
+<th>Akcje</th>
+</tr>
+</thead>
+<tbody>
+{% for item in media_list %}
+<tr>
+<td>{{ item.id }}</td>
+<td><a href="{{ url_for('media.player', media_id=item.id) }}">{{ item.title }}</a></td>
+<td>{{ item.owner.username }}</td>
+<td><span class="badge badge-{{ item.media_type }}">{{ item.media_type }}</span></td>
+<td>{{ format_size(item.file_size) }}</td>
+<td>
+<span class="badge badge-{{ 'public' if item.is_public else 'private' }}">
+{{ 'publiczny' if item.is_public else 'prywatny' }}
+</span>
+</td>
+<td>{{ item.created_at.strftime('%Y-%m-%d') }}</td>
+<td>
+<form method="post" action="{{ url_for('admin.delete_media', media_id=item.id) }}" onsubmit="return confirm('Na pewno usunac?')">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<button type="submit" class="btn btn-danger btn-sm">Usun</button>
+</form>
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% if not media_list %}
+<p class="empty" style="padding:1rem">Brak plikow.</p>
+{% endif %}
+</div>
+
+{% endblock %}

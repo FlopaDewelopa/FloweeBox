@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Blad {{ code }} - FloweeBox{% endblock %}
+{% block content %}
+<div class="empty">
+<h1 style="font-size:3rem;color:#ddd">{{ code }}</h1>
+<p style="margin-top:.5rem">{{ message }}</p>
+<a href="{{ url_for('media.index') }}" class="btn btn-outline" style="margin-top:1rem">Strona glowna</a>
+</div>
+{% endblock %}

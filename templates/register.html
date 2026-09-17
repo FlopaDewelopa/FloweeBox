@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Rejestracja - FloweeBox{% endblock %}
+{% block content %}
+<div class="auth-box">
+<div class="card">
+<h2 style="margin-bottom:1rem">Rejestracja</h2>
+<form method="post">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="form-group">
+<label for="username">Nazwa uzytkownika</label>
+<input type="text" id="username" name="username" value="{{ username }}" required autocomplete="username" minlength="3" maxlength="80" pattern="[a-zA-Z0-9_]+">
+</div>
+
+<div class="form-group">
+<label for="password">Haslo (min. 8 znakow)</label>
+<input type="password" id="password" name="password" required autocomplete="new-password" minlength="8" maxlength="128">
+</div>
+<p style="font-size:.78rem;color:#71717a;margin-bottom:.75rem">Rejestrujac sie, akceptujesz <a href="{{ url_for('media.regulamin') }}">regulamin</a>.</p>
+<button type="submit" class="btn btn-primary" style="width:100%">Zarejestruj</button>
+</form>
+<p style="margin-top:1rem;font-size:.85rem;text-align:center">
+Masz juz konto? <a href="{{ url_for('auth.login') }}">Zaloguj sie</a>
+</p>
+</div>
+</div>
+{% endblock %}

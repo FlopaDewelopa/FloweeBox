@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Panel - FloweeBox{% endblock %}
+{% block content %}
+<div class="page-header">
+<h1>Moje pliki</h1>
+<a href="{{ url_for('media.upload') }}" class="btn btn-primary">Wrzuc nowy</a>
+</div>
+{% if media_list %}
+<div class="grid">
+{% for item in media_list %}
+<div class="card">
+<h3>
+<a href="{{ url_for('media.player', media_id=item.id) }}">{{ item.title }}</a>
+</h3>
+<p class="card-meta">
+<span class="badge badge-{{ item.media_type }}">{{ item.media_type }}</span>
+<span class="badge badge-{{ 'public' if item.is_public else 'private' }}">{{ 'publiczny' if item.is_public else 'prywatny' }}</span>
+{{ format_size(item.file_size) }}
+/ {{ item.created_at.strftime('%Y-%m-%d') }}
+</p>
+<div class="actions">
+<form method="post" action="{{ url_for('media.toggle_visibility', media_id=item.id) }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<button type="submit" class="btn btn-outline btn-sm">
+{{ 'Ukryj' if item.is_public else 'Upublicznij' }}
+</button>
+</form>
+<form method="post" action="{{ url_for('media.share', media_id=item.id) }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<button type="submit" class="btn btn-outline btn-sm">
+{{ 'Cofnij link' if item.share_token else 'Udostepnij' }}
+</button>
+</form>
+<form method="post" action="{{ url_for('media.delete', media_id=item.id) }}" onsubmit="return confirm('Na pewno usunac?')">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<button type="submit" class="btn btn-danger btn-sm">Usun</button>
+</form>
+</div>
+{% if item.share_token %}
+<input type="text" value="{{ url_for('media.shared', share_token=item.share_token, _external=True) }}" onclick="this.select();try{navigator.clipboard.writeText(this.value)}catch(e){}" readonly style="font-size:.75rem;padding:.2rem .5rem;margin-top:.4rem;cursor:pointer;background:#f8f8f8">
+{% endif %}
+</div>
+{% endfor %}
+</div>
+{% if pagination.pages > 1 %}
+<div class="pagination">
+{% if pagination.has_prev %}
+<a href="{{ url_for('media.dashboard', page=pagination.prev_num) }}">Poprzednia</a>
+{% endif %}
+{% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+{% if p %}
+<a href="{{ url_for('media.dashboard', page=p) }}"{% if p == pagination.page %} class="active"{% endif %}>{{ p }}</a>
+{% else %}
+<span>...</span>
+{% endif %}
+{% endfor %}
+{% if pagination.has_next %}
+<a href="{{ url_for('media.dashboard', page=pagination.next_num) }}">Nastepna</a>
+{% endif %}
+</div>
+{% endif %}
+{% else %}
+<div class="empty">
+<p>Nie masz jeszcze zadnych plikow.</p>
+<a href="{{ url_for('media.upload') }}" class="btn btn-primary" style="margin-top:1rem">Wrzuc pierwszy plik</a>
+</div>
+{% endif %}
+{% endblock %}

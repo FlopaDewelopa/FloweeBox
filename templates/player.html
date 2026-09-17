@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}{{ media.title }} - FloweeBox{% endblock %}
+{% block content %}
+<div class="player-wrap">
+{% if media.media_type == 'video' %}
+<video controls preload="metadata">
+{% if share_token %}
+<source src="{{ url_for('media.stream', media_id=media.id, token=share_token) }}" type="{{ mime }}">
+{% else %}
+<source src="{{ url_for('media.stream', media_id=media.id) }}" type="{{ mime }}">
+{% endif %}
+</video>
+{% else %}
+<audio controls preload="metadata" style="width:100%">
+{% if share_token %}
+<source src="{{ url_for('media.stream', media_id=media.id, token=share_token) }}" type="{{ mime }}">
+{% else %}
+<source src="{{ url_for('media.stream', media_id=media.id) }}" type="{{ mime }}">
+{% endif %}
+</audio>
+{% endif %}
+<div class="player-info">
+<h1>{{ media.title }}</h1>
+<p>
+{{ media.owner.username }}
+/ {{ media.created_at.strftime('%Y-%m-%d %H:%M') }}
+/ {{ format_size(media.file_size) }}
+/ <span class="badge badge-{{ 'public' if media.is_public else 'private' }}">{{ 'publiczny' if media.is_public else 'prywatny' }}</span>
+</p>
+<div class="actions" style="margin-top:1rem">
+{% if share_token %}
+<a href="{{ url_for('media.stream', media_id=media.id, download=1, token=share_token) }}" class="btn btn-outline btn-sm">Pobierz</a>
+{% else %}
+<a href="{{ url_for('media.stream', media_id=media.id, download=1) }}" class="btn btn-outline btn-sm">Pobierz</a>
+{% endif %}
+<a href="{{ url_for('media.index') }}" class="btn btn-outline btn-sm">Powrot</a>
+</div>
+{% if media.share_token and current_user.is_authenticated and current_user.id == media.user_id %}
+<div style="margin-top:1rem">
+<label style="font-size:.82rem">Link do udostepniania (kliknij aby skopiowac):</label>
+<input type="text" value="{{ url_for('media.shared', share_token=media.share_token, _external=True) }}" onclick="this.select();try{navigator.clipboard.writeText(this.value)}catch(e){}" readonly style="font-size:.78rem;padding:.3rem .5rem;cursor:pointer;background:#f8f8f8">
+</div>
+{% endif %}
+</div>
+</div>
+{% endblock %}
